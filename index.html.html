@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>CPA Full Exam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Universal box-sizing and hidden overflow so every container fits within the screen */
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        overflow-x: hidden;
+      }
+      body {
+        margin: 0;
+        padding: 2px;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f9fafb;
+        color: #111827;
+      }
+      h2, h3, h4 {
+        margin-bottom: 0.75rem;
+      }
+      /* New rule for the testlet title to move it up 5px and make the text smaller */
+      #testletTitle {
+        margin-top: -9px;
+        font-size: 0.95rem;
+      }
+      
+      /* NEW: The exam & testlet # line is now left–aligned */
+      #testletTitleContainer {
+        text-align: left;
+        margin: 10px 0;
+      }
+      
+      /* Generic styling for select and button elements */
+      select, button {
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 8px 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: #fff;
+        cursor: pointer;
+      }
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      /* Main containers */
+      #testletContainer,
+      #results,
+      #breakPage {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 10px;
+        margin-bottom: 20px;
+        display: none;
+        width: 100%;
+      }
+      #testletContainer.activeSection,
+      #results.activeSection,
+      #breakPage.activeSection {
+        display: block !important;
+      }
+      
+      /* Setup section styling – the exam selection page */
+      #setup {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 80px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 100%;
+      }
+      #setup h2 {
+        margin-bottom: 20px;
+      }
+      #setup p {
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        color: #555;
+      }
+      
+      /* Exam buttons container styling */
+      #examButtonsContainer {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      
+      /* Exam card styling */
+      .examGroup {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-radius: 10px;
+        padding: 20px;
+        width: 260px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .examGroup h3 {
+        font-size: 1.15rem;
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #4A90E2;
+        width: 100%;
+        text-align: center;
+      }
+      
+      /* New modern exam button style */
+      .examButton {
+        background: linear-gradient(135deg, #4A90E2, #357ABD);
+        color: #fff;
+        border: none;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        width: 100%;
+        margin: 8px 0;
+      }
+      
+      .examButton:hover {
+        background: linear-gradient(135deg, #357ABD, #2a65a0);
+        transform: translateY(-2px);
+      }
+      
+      #timerBar {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        color: #dc2626;
+      }
+      
+      /* Other button classes */
+      .btnPrimary {
+        background-color: #3b82f6;
+        color: #fff;
+        border: none;
+      }
+      .btnPrimary:hover {
+        background-color: #2563eb;
+      }
+      .btnSecondary {
+        background-color: #000;
+        color: #fff;
+        border: none;
+      }
+      .btnSecondary:hover {
+        background-color: #555;
+      }
+      .btnSuccess {
+        background-color: #10b981;
+        color: #fff;
+        border: none;
+      }
+      .btnSuccess:hover {
+        background-color: #059669;
+      }
+      
+      /* Pause button styling */
+      .btnPause {
+        background-color: #444;
+        color: #fff;
+        border: none;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        border-radius: 5px;
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .btnPause:hover {
+        background-color: #333;
+      }
+      /* Calculator (and help/hint) button styling (same size as pause) */
+      .btnCalc {
+        background-color: #444;
+        color: #fff;
+        border: none;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        border-radius: 5px;
+        margin: 0;
+        padding: 0 2px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btnCalc:hover {
+        background-color: #333;
+      }
+      
+      /* Red for Exit */
+      .btnExit {
+        background-color: #f00; 
+        color: #fff; 
+        border: none;
+        width: 160px;  
+        height: 30px;
+        margin: 0;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .btnExit:hover {
+        background-color: #c00;
+      }
+      
+      /* New keyframes animation for Unlock button (pulse effect) */
+      @keyframes unlockPulse {
+        0%   { transform: scale(1); }
+        50%  { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+      .animate-unlock {
+        animation: unlockPulse 1s ease-in-out;
+      }
+      
+      /* Print to PDF => red background */
+      .btnDanger {
+        background-color: #f00;
+        color: #fff;
+        border: none;
+      }
+      .btnDanger:hover {
+        background-color: #c00;
+      }
+      
+      /* Progress bar */
+      #progressBar {
+        width: 100%;
+        background-color: #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 20px;
+      }
+      #progressBarFill {
+        height: 100%;
+        width: 0%;
+        background-color: #4A90E2;
+      }
+      .questionItem {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      .questionItem:last-child {
+        border-bottom: none;
+      }
+      .answers label {
+        display: block;
+        margin-bottom: 6px;
+        cursor: pointer;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 1rem;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+        text-align: left;
+      }
+      th {
+        background-color: #f3f4f6;
+        font-weight: 500;
+      }
+      
+      /* Nav layout changes */
+      #questionNavBar {
+        margin-bottom: 15px;
+      }
+      /* Modified so that the top button row is right–aligned */
+      #saveExitBarRow {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
+      #saveExitBar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #progressBarRow {
+        margin-bottom: 10px;
+      }
+      #dropdownRow {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 2.5px;
+      }
+      
+      /* LOADING SCREEN */
+      #loadingScreen {
+        position: fixed;
+        top: 0; 
+        left: 0;
+        width: 100%; 
+        height: 100%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background-color: rgba(255,255,255,0.9);
+        z-index: 9999;
+      }
+      #spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 15px;
+      }
+      @keyframes spin {
+        0%   { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Override for Next Question button */
+      #actionBtn {
+        background-color: #4A90E2;
+        color: #fff;
+        border: none;
+      }
+      #actionBtn:hover {
+        background-color: #357ABD;
+      }
+      
+      /* Feedback message styling */
+      .feedbackMsg {
+        margin-top: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .feedbackCorrect {
+        color: green !important;
+      }
+      .feedbackIncorrect {
+        color: red !important;
+      }
+      
+      /* FINAL RESULTS BLUR & OVERLAY */
+      #results {
+        position: relative;
+      }
+      .blur-overlay {
+        filter: blur(8px);
+        -webkit-filter: blur(8px);
+      }
+      /* Disable text selection on final results so it cannot be copied. */
+      #results .blur-overlay {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      .unlock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding-top: 150px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      .unlock-overlay a {
+        pointer-events: auto;
+        text-decoration: none;
+        background-color: #4A90E2;
+        color: #fff;
+        padding: 15px 30px;
+        border-radius: 6px;
+        font-size: 1.2rem;
+        text-align: center;
+        display: block;
+      }
+      @media print {
+        .blur-overlay {
+          -webkit-filter: blur(8px) !important;
+          filter: blur(8px) !important;
+        }
+      }
+      .simQuestion {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      
+      /* MOBILE OPTIMIZATIONS */
+      @media (max-width: 600px) {
+        body {
+          padding: 1px;
+        }
+        #testletContainer,
+        #setup,
+        #results,
+        #breakPage {
+          padding: 4px;
+          margin: 1px;
+        }
+        .questionItem {
+          padding: 1px;
+        }
+        .simQuestion {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+        #examButtonsContainer {
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+          padding-bottom: 34px;
+        }
+        /* Increase exam button groups 30% wider on mobile */
+        #examButtonsContainer .examGroup {
+          flex: 0 0 auto;
+          width: 156px;
+        }
+        /* Help Popup on mobile: position 20% from top, 5% from bottom, full width with no horizontal overflow */
+        #helpPopup {
+          top: 10% !important;
+          bottom: 10% !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: auto;
+          transform: none !important;
+        }
+      }
+
+      /* ---------------- Calculator Popup Styles ---------------- */
+      #calculatorPopup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #ffffff;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        padding: 0;
+        z-index: 10000;
+        display: none;
+        width: 260px;
+        font-family: 'Roboto', sans-serif;
+      }
+      /* Draggable bar for calculator – changed to match help popup */
+      #calcDragBar {
+        width: 100%;
+        background: #4A90E2;
+        cursor: move;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        display: flex;
+        align-items: center;
+        padding: 2px 10px;
+      }
+      /* Drag-lines element at left */
+      .drag-lines {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 16px;
+      }
+      .drag-lines div {
+        width: 20px;
+        height: 2px;
+        background: #fff;
+      }
+      /* Close Calculator Button (right‐aligned) – changed to black text */
+      #calcClose {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-left: auto;
+      }
+      #calculator {
+        width: 100%;
+        padding: 10px;
+        background-color: #fafafa;
+      }
+      #calcDisplay {
+        width: 100%;
+        height: 50px;
+        background: #eee;
+        margin-bottom: 10px;
+        text-align: right;
+        font-size: 1.3rem;
+        line-height: 50px;
+        padding: 0 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+      #calcButtons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-row-gap: 3px; /* Row gap reduced to half */
+        grid-column-gap: 6px;
+      }
+      /* Remove old generic button styling for calculator so we can use class‐based rules */
+      #calcButtons button {
+        padding: 12px;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      /* Digit buttons (0–9): remain blue */
+      #calcButtons button.digit {
+        background: #4A90E2;
+        color: #fff;
+      }
+      #calcButtons button.digit:hover {
+        background: #357ABD;
+      }
+      /* Operator buttons (all non-digits except clear): black */
+      #calcButtons button.operator {
+        background: #000;
+        color: #fff;
+      }
+      #calcButtons button.operator:hover {
+        background: #333;
+      }
+      /* Clear button: red */
+      #calcButtons button.clear {
+        background: red;
+        color: #fff;
+      }
+      #calcButtons button.clear:hover {
+        background: darkred;
+      }
+      /* Equals button: span two columns; still an operator */
+      #calcButtons button.equals {
+        grid-column: span 2;
+      }
+      /* ---------------- End Calculator Styles ---------------- */
+
+      /* ---------------- Help Popup Styles ---------------- */
+      #helpOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        overflow: hidden;
+      }
+      #helpPopup {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        resize: both;
+        overflow: hidden;
+        min-width: 300px;
+        min-height: 200px;
+        width: 90vw;
+        height: 80vh;
+      }
+      /* Draggable header for help popup – reduced padding so the blue bar is much shorter */
+      #helpPopupHeader {
+        background: #4A90E2;
+        color: #fff;
+        padding: 2px 10px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        cursor: move;
+      }
+      /* Drag-lines inside help header */
+      #helpPopupHeader .drag-lines {
+        margin-right: 8px;
+      }
+      /* Buttons container for help popup header */
+      .help-buttons {
+        margin-left: auto;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      /* Close Help Button – force black text */
+      #helpClose {
+        background: none;
+        border: none;
+        color: #000 !important;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+      /* The iframe fills the remaining space; its text content will now have 5px left/right padding added in openHelpPopup() */
+      #helpIframe {
+        width: 100%;
+        height: calc(100% - 24px);
+        border: none;
+      }
+      
+      /* ---------------- Hint Popup Styles ---------------- */
+      #hintPopup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        padding: 0;
+        z-index: 10000;
+        display: none;
+        width: 300px;
+        font-family: 'Roboto', sans-serif;
+      }
+      #hintDragBar {
+        width: 100%;
+        background: #4A90E2;
+        cursor: move;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        display: flex;
+        align-items: center;
+        padding: 2px 10px;
+      }
+      #hintClose {
+        background: none;
+        border: none;
+        color: #000;
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-left: auto;
+      }
+      #hintContent {
+        padding: 10px;
+        background-color: #fafafa;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      /* Optional: a little styling for the header inside the hint popup */
+      #hintContent h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+      }
+
+      /* ---------------- Animation for Hint Button (lights up red) ---------------- */
+      @keyframes hintRedFlash {
+        0%   { background-color: #444; }
+        50%  { background-color: red; }
+        100% { background-color: #444; }
+      }
+      .animate-hint {
+        animation: hintRedFlash 2.5s;
+      }
+    </style>
+
+    <!-- Papa Parse -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  </head>
+  <body>
+
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen">
+      <div id="spinner"></div>
+      <p>Loading your exam, please wait...</p>
+    </div>
+
+    <!-- SETUP SECTION (Exam Selection) -->
+    <div id="setup">
+      <h2>CPA - Full Exam (Sample)</h2>
+      <p>Select an exam. You will have a 4‑hour timer with breaks between testlets. Good luck!</p>
+      
+      <!-- Exam Buttons -->
+      <div id="examButtonsContainer">
+        <div class="examGroup">
+          <h3>Core</h3>
+          <button class="examButton" data-exam="FAR">FAR</button>
+          <button class="examButton" data-exam="REG">REG</button>
+          <button class="examButton" data-exam="AUD">AUD</button>
+        </div>
+        <div class="examGroup">
+          <h3>Discipline</h3>
+          <button class="examButton" data-exam="BAR">BAR</button>
+          <button class="examButton" data-exam="ISC">ISC</button>
+          <button class="examButton" data-exam="TCP">TCP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BREAK PAGE (timer paused) -->
+    <div id="breakPage">
+      <h2>Break</h2>
+      <p>
+        You have successfully finished one testlet. The 4‑hour clock is now paused.
+        When you're ready to continue, click below to begin the next testlet.
+      </p>
+      <button id="resumeBtn" class="btnPrimary">Begin Next Testlet</button>
+    </div>
+
+    <!-- TESTLET DISPLAY SECTION -->
+    <div id="testletContainer">
+      <div id="timerBar"></div>
+
+      <!-- New exam/testlet header container -->
+      <div id="testletTitleContainer">
+        <h3 id="testletTitle"></h3>
+      </div>
+
+      <div id="questionNavBar">
+        <div class="navRow" id="saveExitBarRow">
+          <div id="saveExitBar">
+            <!-- Hint button; will be hidden if no hint is available -->
+            <button id="hintBtn" class="btnCalc" title="Hint">💡</button>
+            <!-- Help button now uses a book icon -->
+            <button id="helpBtn" class="btnCalc" title="Help">📚</button>
+            <!-- Calculator button -->
+            <button id="calcBtn" class="btnCalc" title="Calculator">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 448 512">
+                <path fill="currentColor" d="M400 0H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48zm-224 416c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm0-96c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm96 96c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm0-96c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"/>
+              </svg>
+            </button>
+            <button id="pauseBtn" class="btnPause">&#10073;&#10073;</button>
+            <!-- Updated button text -->
+            <button id="exitTestletBtn" class="btnExit">Unlock Full Test Bank</button>
+          </div>
+        </div>
+        <div class="navRow" id="progressBarRow">
+          <div id="progressBar">
+            <div id="progressBarFill"></div>
+          </div>
+        </div>
+        <div class="navRow" id="dropdownRow">
+          <select id="questionSelect"></select>
+        </div>
+      </div>
+
+      <div id="questionsWrapper"></div>
+
+      <div style="display:flex; gap: 10px; margin-top: 15px;">
+        <button id="showAnswerBtn" class="btnSecondary">Show Answer</button>
+        <button id="actionBtn" class="btnPrimary">Next Question</button>
+      </div>
+    </div>
+
+    <!-- FINAL RESULTS PAGE -->
+    <div id="results">
+      <div class="blur-overlay">
+        <h2>Final Results</h2>
+        <div id="finalScore"></div>
+        <div id="subtopicBreakdown"></div>
+        <div id="review"></div>
+      </div>
+      <div class="unlock-overlay">
+        <a href="https://www.cpatasks.com">Join to get full scoring reports</a>
+      </div>
+    </div>
+
+    <!-- Calculator Popup -->
+    <div id="calculatorPopup">
+      <!-- Draggable bar for calculator -->
+      <div id="calcDragBar">
+        <div class="drag-lines">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <button id="calcClose" title="Close Calculator">X</button>
+      </div>
+      <div id="calculator">
+        <div id="calcDisplay">0</div>
+        <div id="calcButtons">
+          <!-- Row 1 -->
+          <button data-value="7" class="digit">7</button>
+          <button data-value="8" class="digit">8</button>
+          <button data-value="9" class="digit">9</button>
+          <button data-value="/" class="operator">/</button>
+          <!-- Row 2 -->
+          <button data-value="4" class="digit">4</button>
+          <button data-value="5" class="digit">5</button>
+          <button data-value="6" class="digit">6</button>
+          <button data-value="*" class="operator">*</button>
+          <!-- Row 3 -->
+          <button data-value="1" class="digit">1</button>
+          <button data-value="2" class="digit">2</button>
+          <button data-value="3" class="digit">3</button>
+          <button data-value="-" class="operator">-</button>
+          <!-- Row 4 -->
+          <button data-value="0" class="digit">0</button>
+          <button data-value="." class="operator">.</button>
+          <button data-action="clear" class="clear">C</button>
+          <button data-value="+" class="operator">+</button>
+          <!-- Row 5: square and sqrt, and equals spanning two columns -->
+          <button data-action="square" class="operator">x²</button>
+          <button data-action="sqrt" class="operator">√</button>
+          <button data-action="equals" class="operator equals">=</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hint Popup -->
+    <div id="hintPopup">
+      <div id="hintDragBar">
+        <div class="drag-lines">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <button id="hintClose" title="Close Hint">X</button>
+      </div>
+      <div id="hintContent"><!-- Hint content injected here --></div>
+    </div>
+
+    <!-- Help Popup (with independent, self-contained HTML via an iframe) -->
+    <div id="helpOverlay">
+      <div id="helpPopup">
+        <div id="helpPopupHeader">
+          <div class="drag-lines">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <span>Help</span>
+          <div class="help-buttons">
+            <button id="helpClose" title="Close Help">X</button>
+          </div>
+        </div>
+        <iframe id="helpIframe" 
+          srcdoc="<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='UTF-8'>
+    <title>Help</title>
+    <style>body { padding: 0 5px; margin: 0; font-family: Roboto, sans-serif; }</style>
+  </head>
+  <body>
+    <p>Insert your help content here.</p>
+  </body>
+</html>" ></iframe>
+      </div>
+    </div>
+
+    <script>
+      ////////////////////////////////////////////////////////////////////////////////
+      // 1. CONFIG, EXAM DATA, ETC.
+      ////////////////////////////////////////////////////////////////////////////////
+
+      // Google Sheets data URLs obfuscated
+      const docsProtocol = "https://";
+      const docsHost = "docs.google.com";
+      const docsPath = "/spreadsheets/d/e/";
+      const docsId = "2PACX-1vQiW-VfI1oonmjq5zDcc6HAD0HLkCHZ9ixA0QWftSlxgRFI4UZwPIZTfpWSHtETTg";
+      const csvTail = "/pub?single=true&output=csv";
+      
+      // Exam MCQ sheet GIDs
+      const sheetGIDs = {
+        "FAR": "1687873019",
+        "REG": "1800061537",
+        "AUD": "861732103",
+        "BAR": "95134214",
+        "ISC": "682399307",
+        "TCP": "1659970016",
+        "SIM": "1062084709",
+        "HELP": "2073630914"
+      };
+      
+      const examMCQMap = {
+        "FAR": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["FAR"],
+        "REG": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["REG"],
+        "AUD": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["AUD"],
+        "BAR": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["BAR"],
+        "ISC": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["ISC"],
+        "TCP": docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["TCP"]
+      };
+
+      const simCSVLink = docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["SIM"];
+      const helpCSVUrl = docsProtocol + docsHost + docsPath + docsId + csvTail + "&gid=" + sheetGIDs["HELP"];
+
+      // NEW: Global variable to cache the help CSV data.
+      let helpCSVData = null;
+
+      const examConfig = {
+        "FAR": {
+          subtopics: [
+            { name: "Financial reporting", mcqCount: 18, simCount: 3 },
+            { name: "Select balance sheet accounts", mcqCount: 17, simCount: 2 },
+            { name: "Select transactions", mcqCount: 15, simCount: 2 }
+          ],
+          testlets: [
+            { type: "mcq", count: 25 },
+            { type: "mcq", count: 25 },
+            { type: "sim", count: 2 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 2 }
+          ],
+          totalMCQ: 50,
+          totalSIM: 7
+        },
+        "REG": {
+          subtopics: [
+            { name: "Federal Taxation of Entities", mcqCount: 18, simCount: 2 },
+            { name: "Business Law", mcqCount: 14, simCount: 2 },
+            { name: "Ethics and Professional Responsibility", mcqCount: 16, simCount: 0 },
+            { name: "Federal Taxation of Individuals", mcqCount: 18, simCount: 2 },
+            { name: "Tax Procedures and Accounting Issues", mcqCount: 15, simCount: 2 }
+          ],
+          testlets: [
+            { type: "mcq", count: 36 },
+            { type: "mcq", count: 36 },
+            { type: "sim", count: 2 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 3 }
+          ],
+          totalMCQ: 72,
+          totalSIM: 8
+        },
+        "AUD": {
+          subtopics: [
+            { name: "Performing Further Procedures and Obtaining Evidence", mcqCount: 27, simCount: 3 },
+            { name: "Assessing Risk and Developing a Planned Response", mcqCount: 23, simCount: 3 },
+            { name: "Ethics and Professional Responsibilities and General Principles", mcqCount: 16, simCount: 0 },
+            { name: "Forming Conclusions & Reporting", mcqCount: 12, simCount: 1 }
+          ],
+          testlets: [
+            { type: "mcq", count: 39 },
+            { type: "mcq", count: 39 },
+            { type: "sim", count: 2 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 2 }
+          ],
+          totalMCQ: 78,
+          totalSIM: 7
+        },
+        "BAR": {
+          subtopics: [
+            { name: "State and Local Governments", mcqCount: 8, simCount: 1 },
+            { name: "Technical Accounting and Reporting", mcqCount: 20, simCount: 3 },
+            { name: "Business Analysis", mcqCount: 22, simCount: 3 }
+          ],
+          testlets: [
+            { type: "mcq", count: 25 },
+            { type: "mcq", count: 25 },
+            { type: "sim", count: 2 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 2 }
+          ],
+          totalMCQ: 50,
+          totalSIM: 7
+        },
+        "ISC": {
+          subtopics: [
+            { name: "Information Systems and Data Management", mcqCount: 33, simCount: 3 },
+            { name: "Considerations for System and Organization Controls (SOC) Engagements", mcqCount: 16, simCount: 1 },
+            { name: "Security and Confidentiality and Privacy", mcqCount: 33, simCount: 2 }
+          ],
+          testlets: [
+            { type: "mcq", count: 41 },
+            { type: "mcq", count: 41 },
+            { type: "sim", count: 1 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 2 }
+          ],
+          totalMCQ: 82,
+          totalSIM: 6
+        },
+        "TCP": {
+          subtopics: [
+            { name: "Entity Tax Compliance", mcqCount: 24, simCount: 2 },
+            { name: "Entity Tax Planning", mcqCount: 10, simCount: 1 },
+            { name: "Property Transactions (disposition of assets)", mcqCount: 10, simCount: 1 },
+            { name: "Tax Compliance and Planning for Individuals and Personal Financial Planning", mcqCount: 24, simCount: 3 }
+          ],
+          testlets: [
+            { type: "mcq", count: 34 },
+            { type: "mcq", count: 34 },
+            { type: "sim", count: 2 },
+            { type: "sim", count: 3 },
+            { type: "sim", count: 2 }
+          ],
+          totalMCQ: 68,
+          totalSIM: 7
+        }
+      };
+
+      let mcqArray = [];
+      let simArray = [];
+      let userMcqAnswers = [];
+      let userSimAnswers = [];
+      let currentTestletIndex = 0;
+      const TOTAL_TIME = 4 * 60 * 60;
+      let timeLeft = TOTAL_TIME;
+      let timerInterval = null;
+      let examKey = "";
+
+      let currentTestletQuestions = [];
+      let currentQuestionIndex = 0;
+      let isPaused = false;
+
+      // NEW: Global variable for tracking a timer for each MCQ question
+      let questionTimer = null;
+
+      // Initialize user IP for logging
+      let userIP = '';
+      
+      // Google Sheets integration (obfuscated URL)
+      const scriptProtocol = "https://";
+      const scriptHost = "script.google.com";
+      const scriptPath = "/macros/s/";
+      const scriptId = "AKfycbxiinfolz65zvpjx3w15rsoA1SltnfYA3Pq3sdoMCAEgzbXHweta-Uld1KXVeaTQOr1Eg";
+      const scriptTail = "/exec";
+      const googleScriptURL = scriptProtocol + scriptHost + scriptPath + scriptId + scriptTail;
+      
+      // Store source URL for tracking
+      const sourceUrl = window.location.href;
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 2. ON LOAD
+      ////////////////////////////////////////////////////////////////////////////////
+      document.addEventListener("DOMContentLoaded", () => {
+
+        // Attach click events for exam buttons.
+        document.querySelectorAll('.examButton').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            examKey = e.currentTarget.getAttribute('data-exam');
+            startExam();
+          });
+        });
+
+        document.getElementById("resumeBtn").addEventListener("click", resumeNextTestlet);
+
+        document.getElementById("exitTestletBtn").addEventListener("click", () => {
+          window.location.href = "https://www.cpatasks.com";
+        });
+
+        const pauseBtn = document.getElementById("pauseBtn");
+        pauseBtn.addEventListener("click", () => {
+          if (!isPaused) {
+            stopTimer();
+            isPaused = true;
+            pauseBtn.innerHTML = "&#9658;";
+          } else {
+            startTimer();
+            isPaused = false;
+            pauseBtn.innerHTML = "&#10073;&#10073;";
+          }
+        });
+
+        // Calculator button logic
+        document.getElementById("calcBtn").addEventListener("click", toggleCalculator);
+        document.getElementById("calcClose").addEventListener("click", toggleCalculator);
+
+        // Help button logic – UPDATED: use new CSV data for help info.
+        document.getElementById("helpBtn").addEventListener("click", openHelpPopup);
+        document.getElementById("helpClose").addEventListener("click", closeHelpPopup);
+        document.getElementById("helpOverlay").addEventListener("click", (e) => {
+          if (e.target === document.getElementById("helpOverlay")) {
+            closeHelpPopup();
+          }
+        });
+
+        // New Hint button logic
+        document.getElementById("hintBtn").addEventListener("click", openHintPopup);
+        document.getElementById("hintClose").addEventListener("click", closeHintPopup);
+
+        document.getElementById("questionSelect").addEventListener("change", (e) => {
+          const newIndex = parseInt(e.target.value, 10);
+          if (!isNaN(newIndex)) {
+            showQuestion(newIndex);
+          }
+        });
+
+        document.getElementById("actionBtn").addEventListener("click", () => {
+          let currentQuestion = currentTestletQuestions[currentQuestionIndex];
+          if (currentQuestion.A === undefined) {
+            if (currentQuestionIndex < currentTestletQuestions.length - 1) {
+              nextQuestion();
+            } else {
+              finishTestlet();
+            }
+          } else {
+            if (currentQuestionIndex < currentTestletQuestions.length - 1) {
+              nextQuestion();
+            } else {
+              finishTestlet();
+            }
+          }
+        });
+        
+        document.getElementById("showAnswerBtn").addEventListener("click", () => {
+          handleShowAnswer();
+        });
+
+        // Initialize Calculator Expression and Keyboard support.
+        initCalculator();
+
+        // Initialize draggable functionality for the Help Popup.
+        initHelpDrag();
+        // Initialize draggable functionality for the Hint Popup.
+        initHintDrag();
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // NEW: Global click listener to close the Calculator if clicking outside it
+        ////////////////////////////////////////////////////////////////////////////////
+        document.addEventListener("click", function(e) {
+          const calcPopup = document.getElementById("calculatorPopup");
+          const calcBtn = document.getElementById("calcBtn");
+          if ((calcPopup.style.display === "block") && 
+              (!calcPopup.contains(e.target) && !calcBtn.contains(e.target))) {
+            calcPopup.style.display = "none";
+          }
+        });
+        
+        ////////////////////////////////////////////////////////////////////////////////
+        // NEW: Global click listener to close the Hint Popup if clicking outside it
+        ////////////////////////////////////////////////////////////////////////////////
+        document.addEventListener("click", function(e) {
+          const hintPopup = document.getElementById("hintPopup");
+          const hintBtn = document.getElementById("hintBtn");
+          if ((hintPopup.style.display === "block") &&
+              (!hintPopup.contains(e.target) && !hintBtn.contains(e.target))) {
+            hintPopup.style.display = "none";
+          }
+        });
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // NEW: Set up an interval to animate the Unlock Button every 60 seconds.
+        ////////////////////////////////////////////////////////////////////////////////
+        function animateUnlockButton(){
+          const unlockBtn = document.getElementById("exitTestletBtn");
+          if (unlockBtn) {
+            unlockBtn.classList.add("animate-unlock");
+            setTimeout(() => {
+              unlockBtn.classList.remove("animate-unlock");
+            }, 1000);
+          }
+        }
+        setInterval(animateUnlockButton, 60000);
+      });
+
+      // Keyboard support for calculator – only active when popup is visible.
+      document.addEventListener("keydown", (e) => {
+        const calcPopup = document.getElementById("calculatorPopup");
+        if (calcPopup.style.display !== "none") {
+          const allowedKeys = "0123456789.+-*/";
+          if (allowedKeys.includes(e.key)) {
+            calcExpression += e.key;
+            updateCalcDisplay();
+            e.preventDefault();
+          } else if (e.key === "Enter") {
+            performEquals();
+            e.preventDefault();
+          } else if (e.key === "Backspace") {
+            calcExpression = calcExpression.slice(0, -1);
+            updateCalcDisplay();
+            e.preventDefault();
+          } else if (e.key === "Escape") {
+            toggleCalculator();
+            e.preventDefault();
+          }
+        }
+      });
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 3. START EXAM
+      ////////////////////////////////////////////////////////////////////////////////
+      function startExam() {
+        if (!examKey) {
+          alert("Exam selection error.");
+          return;
+        }
+        document.getElementById("setup").style.display = "none";
+        document.getElementById("loadingScreen").style.display = "flex";
+
+        loadMCQsForExam(examKey)
+          .then(() => loadSIMsForExam(examKey))
+          .then(() => {
+            document.getElementById("loadingScreen").style.display = "none";
+            currentTestletIndex = 0;
+            currentQuestionIndex = 0;
+            timeLeft = TOTAL_TIME;
+
+            showTestlet(currentTestletIndex);
+            startTimer();
+          })
+          .catch(err => {
+            document.getElementById("loadingScreen").style.display = "none";
+            alert("Error loading questions: " + err);
+            console.error(err);
+          });
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 4. LOAD MCQs
+      ////////////////////////////////////////////////////////////////////////////////
+      async function loadMCQsForExam(exam) {
+        mcqArray = [];
+        userMcqAnswers = [];
+        const config = examConfig[exam];
+        if (!config) throw new Error("No config found for exam: " + exam);
+
+        const csvUrl = examMCQMap[exam];
+        if (!csvUrl) throw new Error("No MCQ CSV URL found for exam: " + exam);
+
+        const response = await fetch(csvUrl);
+        const csvText = await response.text();
+        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+        let allQuestions = parsed.data.map(row => ({
+          Question: row["Question"] || "",
+          A: row["A"] || "",
+          B: row["B"] || "",
+          C: row["C"] || "",
+          D: row["D"] || "",
+          Correct: row["Correct"] || "",
+          Explanation: row["Explanation"] || "",
+          // For MCQs the column "Subtopic" is used.
+          Subtopic: row["Subtopic"] || "",
+          // Optionally if your CSV contained a "microtopic" column, use it.
+          microtopic: row["microtopic"] || "",
+          help: row["help"] || "",
+          hint: row["hint"] || "",
+          html_q: row["html-q"] || "",
+          html_e: row["html-e"] || "",
+          userAnswer: null
+        })).filter(q => q.Question.trim() !== "");
+
+        mcqArray = allQuestions.slice(0, config.totalMCQ);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 5. LOAD SIMs
+      ////////////////////////////////////////////////////////////////////////////////
+      async function loadSIMsForExam(exam) {
+        simArray = [];
+        userSimAnswers = [];
+
+        const config = examConfig[exam];
+        if (!config) throw new Error("No config for exam: " + exam);
+
+        const response = await fetch(simCSVLink);
+        const csvText = await response.text();
+        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+        let allSims = parsed.data.map(row => ({
+          Exam: (row["Exam"] || "").trim(),
+          subtopic: (row["subtopic"] || "").trim(),
+          microtopic: (row["microtopic"] || "").trim(),
+          Question: row["QuestionHTML"] || "",
+          help: row["help"] || "",
+          hint: row["hint"] || "",
+          userAnswer: null
+        }))
+        .filter(s => s.Exam.toLowerCase() === exam.toLowerCase());
+
+        simArray = allSims.slice(0, config.totalSIM);
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 6. SHOW ONE TESTLET
+      ////////////////////////////////////////////////////////////////////////////////
+      function showTestlet(index) {
+        const config = examConfig[examKey];
+        if (!config) {
+          alert("No config for this exam.");
+          return;
+        }
+
+        if (index >= config.testlets.length) {
+          finishExam();
+          return;
+        }
+
+        document.getElementById("breakPage").style.display = "none";
+        document.getElementById("results").style.display = "none";
+
+        const testletDiv = document.getElementById("testletContainer");
+        testletDiv.classList.add("activeSection");
+        testletDiv.style.display = "block";
+
+        window.scrollTo(0, 0);
+
+        const tInfo = config.testlets[index];
+        document.getElementById("testletTitle").innerHTML = "<strong>" + examKey + "</strong>: Testlet " + (index + 1);
+
+        if (tInfo.type === "mcq") {
+          const startPos = sumOfTestletCounts(config.testlets, index, "mcq");
+          currentTestletQuestions = mcqArray.slice(startPos, startPos + tInfo.count);
+        } else {
+          const startPos = sumOfTestletCounts(config.testlets, index, "sim");
+          currentTestletQuestions = simArray.slice(startPos, startPos + tInfo.count);
+        }
+
+        currentQuestionIndex = 0;
+
+        const questionSelect = document.getElementById("questionSelect");
+        questionSelect.innerHTML = "";
+        for (let i = 0; i < currentTestletQuestions.length; i++) {
+          let opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = (currentTestletQuestions[i].userAnswer ? "✅ " : "☐ ") + "Question " + (i + 1);
+          questionSelect.appendChild(opt);
+        }
+        const showAnswerBtn = document.getElementById("showAnswerBtn");
+        showAnswerBtn.textContent = "Show Answer";
+        showAnswerBtn.style.backgroundColor = "";
+        showAnswerBtn.style.color = "";
+        showQuestion(currentQuestionIndex);
+      }
+
+      function showQuestion(qIndex) {
+        if (qIndex < 0 || qIndex >= currentTestletQuestions.length) return;
+        currentQuestionIndex = qIndex;
+        document.getElementById("questionSelect").value = qIndex;
+
+        window.scrollTo(0, 0);
+
+        const questionData = currentTestletQuestions[qIndex];
+        const questionsWrapper = document.getElementById("questionsWrapper");
+        questionsWrapper.innerHTML = "";
+
+        let oldFeedback = document.getElementById("feedback_answer");
+        if (oldFeedback) oldFeedback.remove();
+
+        if (questionData.A !== undefined) {
+          // MCQ question handling (unchanged)
+          let questionContent = `<p>${escapeHTML(questionData.Question)}</p>`;
+          if (questionData.html_q && questionData.html_q.trim() !== "") {
+            questionContent += questionData.html_q + "<br><br>";
+          }
+          let html = `<div class="questionItem">
+                        ${questionContent}
+                        <div class="answers">
+                          <label>
+                            <input type="radio" name="mcq_${qIndex}" value="A"/>
+                            <strong>A)</strong> ${escapeHTML(questionData.A)}
+                          </label>
+                          <label>
+                            <input type="radio" name="mcq_${qIndex}" value="B"/>
+                            <strong>B)</strong> ${escapeHTML(questionData.B)}
+                          </label>
+                          <label>
+                            <input type="radio" name="mcq_${qIndex}" value="C"/>
+                            <strong>C)</strong> ${escapeHTML(questionData.C)}
+                          </label>
+                          <label>
+                            <input type="radio" name="mcq_${qIndex}" value="D"/>
+                            <strong>D)</strong> ${escapeHTML(questionData.D)}
+                          </label>
+                        </div>
+                      </div>`;
+          questionsWrapper.innerHTML = html;
+          document.querySelectorAll(`input[name="mcq_${qIndex}"]`).forEach(radio => {
+            radio.addEventListener("change", e => {
+              currentTestletQuestions[qIndex].userAnswer = e.target.value;
+              updateDropdownOption(qIndex);
+            });
+          });
+        } else {
+          // SIM question handling - brand new approach
+          currentTestletQuestions[qIndex].submitted = false;
+          
+          // Prepare storage for user answers if needed
+          if (!currentTestletQuestions[qIndex].userAnswer || typeof currentTestletQuestions[qIndex].userAnswer !== 'object') {
+            currentTestletQuestions[qIndex].userAnswer = {};
+          }
+          
+          // Create a temporary element to parse the HTML
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = questionData.Question;
+          
+          // Find and modify all input elements in the HTML to make them work with our answer tracking
+          const inputElements = tempDiv.querySelectorAll('input');
+          inputElements.forEach((input, idx) => {
+            if (input.type !== 'checkbox' && input.type !== 'radio') {
+              const inputId = input.id || `sim_input_${qIndex}_${idx}`;
+              if (!input.id) input.id = inputId;
+              
+              // Restore previous value if available
+              if (currentTestletQuestions[qIndex].userAnswer[inputId]) {
+                input.value = currentTestletQuestions[qIndex].userAnswer[inputId];
+              }
+              
+              // Add inline event handler
+              input.setAttribute('oninput', `
+                (function() {
+                  const answerObj = currentTestletQuestions[${qIndex}].userAnswer || {};
+                  answerObj['${inputId}'] = this.value;
+                  currentTestletQuestions[${qIndex}].userAnswer = answerObj;
+                  updateDropdownOption(${qIndex});
+                  console.log('Input ${inputId} value changed to: ' + this.value);
+                }).call(this);
+              `);
+            }
+          });
+          
+          // Process scripts first
+          const scriptTags = tempDiv.querySelectorAll('script');
+          const scriptContent = [];
+          scriptTags.forEach(sc => {
+            scriptContent.push(sc.textContent);
+            sc.remove();
+          });
+          
+          // Add the modified HTML to the DOM
+          const simContainer = document.createElement('div');
+          simContainer.className = "questionItem simQuestion";
+          simContainer.innerHTML = tempDiv.innerHTML;
+          questionsWrapper.appendChild(simContainer);
+          
+          // Now add the scripts
+          scriptContent.forEach(content => {
+            const newScript = document.createElement('script');
+            newScript.text = content + `
+              if (typeof explanationFor === 'function') {
+                window.explanationFor = explanationFor;
+              }
+              if (typeof correctAnswers !== 'undefined') {
+                window.correctAnswers = correctAnswers;
+              }
+            `;
+            document.body.appendChild(newScript);
+          });
+        }
+
+        updateProgressBar(qIndex, currentTestletQuestions.length);
+        updateActionButton();
+        updateHintButtonVisibility();
+        const showAnswerBtn = document.getElementById("showAnswerBtn");
+        showAnswerBtn.textContent = "Show Answer";
+        showAnswerBtn.style.backgroundColor = "";
+        showAnswerBtn.style.color = "";
+
+        if (questionTimer) {
+          clearTimeout(questionTimer);
+          questionTimer = null;
+        }
+        if (questionData.A !== undefined && questionData.hint && questionData.hint.trim() !== "") {
+          questionTimer = setTimeout(animateHintButton, 40000);
+        }
+      }
+
+      function updateDropdownOption(index) {
+        const questionSelect = document.getElementById("questionSelect");
+        if (questionSelect && questionSelect.options && questionSelect.options.length > index) {
+          const option = questionSelect.options[index];
+          option.textContent = (currentTestletQuestions[index].userAnswer ? "✅ " : "☐ ") + "Question " + (index + 1);
+        }
+      }
+
+      function updateActionButton() {
+        const actionBtn = document.getElementById("actionBtn");
+        const currentQuestion = currentTestletQuestions[currentQuestionIndex];
+        const showAnswerBtn = document.getElementById("showAnswerBtn");
+        if (currentQuestion.A !== undefined) {
+          showAnswerBtn.style.display = "inline-block";
+          actionBtn.textContent = currentQuestionIndex < currentTestletQuestions.length - 1 ? "Next Question" : "Submit Testlet";
+        } else {
+          showAnswerBtn.style.display = "none";
+          actionBtn.textContent = currentQuestionIndex < currentTestletQuestions.length - 1 ? "Next Question" : "Submit Testlet";
+        }
+      }
+
+      // NEW: Hide the hint button if no hint exists for this question.
+      function updateHintButtonVisibility() {
+        const hintBtn = document.getElementById('hintBtn');
+        const currentQ = currentTestletQuestions[currentQuestionIndex];
+        if (!currentQ || !currentQ.hint || currentQ.hint.trim() === "") {
+          hintBtn.style.display = "none";
+        } else {
+          hintBtn.style.display = "inline-block";
+        }
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= currentTestletQuestions.length) {
+          finishTestlet();
+        } else {
+          showQuestion(currentQuestionIndex);
+          window.scrollTo(0, 0);
+        }
+      }
+
+      function updateProgressBar(currentIndex, totalQ) {
+        const percent = ((currentIndex + 1) / totalQ) * 100;
+        document.getElementById("progressBarFill").style.width = percent + "%";
+      }
+
+      // Toggling for MCQ Show/Hide Answer button
+      function handleShowAnswer() {
+        const questionData = currentTestletQuestions[currentQuestionIndex];
+        const questionsWrapper = document.getElementById("questionsWrapper");
+        const showAnswerBtn = document.getElementById("showAnswerBtn");
+
+        if (questionData.A !== undefined) {
+          let feedbackDiv = document.getElementById("feedback_answer");
+          if (feedbackDiv) {
+            feedbackDiv.remove();
+            showAnswerBtn.textContent = "Show Answer";
+            showAnswerBtn.style.backgroundColor = "";
+            showAnswerBtn.style.color = "";
+            window.scrollTo(0, 0);
+          } else {
+            feedbackDiv = document.createElement("div");
+            feedbackDiv.id = "feedback_answer";
+            feedbackDiv.className = "feedbackDiv";
+            const userAns = questionData.userAnswer;
+            const correctAns = questionData.Correct.trim().toUpperCase();
+            const userAnsUpper = userAns ? userAns.trim().toUpperCase() : "";
+            const isCorrect = (userAnsUpper === correctAns && userAns !== null);
+            let feedbackMsg = "";
+
+            if (isCorrect) {
+              feedbackMsg += `<p class="feedbackMsg feedbackCorrect">Correct!</p>`;
+            } else {
+              feedbackMsg += `<p class="feedbackMsg feedbackIncorrect">Incorrect</p>`;
+            }
+            feedbackMsg += `<p><strong>Correct Answer:</strong> ${escapeHTML(questionData.Correct)}</p>
+                            <p><strong>Explanation:</strong> ${escapeHTML(questionData.Explanation)}</p>`;
+            if (questionData.html_e && questionData.html_e.trim() !== "") {
+              feedbackMsg += questionData.html_e;
+            }
+            feedbackDiv.innerHTML = feedbackMsg;
+            questionsWrapper.appendChild(feedbackDiv);
+            showAnswerBtn.textContent = "Hide Answer";
+            showAnswerBtn.style.backgroundColor = "#ccc";
+            showAnswerBtn.style.color = "#000";
+          }
+        } else {
+          const simContainer = document.querySelector('#questionsWrapper .questionItem');
+          if (simContainer) {
+            gradeSimQuestion(simContainer);
+          } else {
+            console.warn("SIM container not found for showing explanation.");
+          }
+        }
+      }
+
+      function finishTestlet() {
+        const config = examConfig[examKey];
+        const tInfo = config.testlets[currentTestletIndex];
+        if (!tInfo) {
+          finishExam();
+          return;
+        }
+        
+        if (tInfo.type === "mcq") {
+          const startPos = sumOfTestletCounts(config.testlets, currentTestletIndex, "mcq");
+          for (let i = 0; i < currentTestletQuestions.length; i++) {
+            mcqArray[startPos + i].userAnswer = currentTestletQuestions[i].userAnswer || null;
+          }
+        } else {
+          const startPos = sumOfTestletCounts(config.testlets, currentTestletIndex, "sim");
+          for (let i = 0; i < currentTestletQuestions.length; i++) {
+            simArray[startPos + i].userAnswer = currentTestletQuestions[i].userAnswer || "";
+          }
+        }
+
+        document.getElementById("testletContainer").classList.remove("activeSection");
+        document.getElementById("testletContainer").style.display = "none";
+        stopTimer();
+
+        window.scrollTo(0, 0);
+
+        currentTestletIndex++;
+        currentQuestionIndex = 0; 
+        if (currentTestletIndex >= config.testlets.length) {
+          finishExam();
+        } else {
+          document.getElementById("breakPage").classList.add("activeSection");
+          document.getElementById("breakPage").style.display = "block";
+        }
+      }
+
+      function resumeNextTestlet() {
+        document.getElementById("breakPage").classList.remove("activeSection");
+        document.getElementById("breakPage").style.display = "none";
+        showTestlet(currentTestletIndex);
+        startTimer();
+        window.scrollTo(0, 0);
+      }
+
+      function finishExam() {
+        stopTimer();
+        document.getElementById("breakPage").style.display = "none";
+        document.getElementById("testletContainer").style.display = "none";
+        
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.classList.add("activeSection");
+
+        const config = examConfig[examKey];
+
+        let mcqCorrect = 0;
+        const subtopicTotalsMCQ = {};
+        const subtopicCorrectMCQ = {};
+        mcqArray.forEach(q => {
+          const st = q.Subtopic.trim() || "(None)";
+          if (!subtopicTotalsMCQ[st]) {
+            subtopicTotalsMCQ[st] = 0;
+            subtopicCorrectMCQ[st] = 0;
+          }
+          subtopicTotalsMCQ[st]++;
+          if (
+            q.userAnswer &&
+            q.userAnswer.trim().toUpperCase() === q.Correct.trim().toUpperCase()
+          ) {
+            mcqCorrect++;
+            subtopicCorrectMCQ[st]++;
+          }
+        });
+        const mcqTotal = config.totalMCQ;
+        const mcqPercent = (mcqCorrect / mcqTotal) * 100;
+
+        let simTotalCorrect = 0;
+        let simTotalInputs = 0;
+        simArray.forEach(s => {
+            let container = document.createElement('div');
+            container.innerHTML = s.Question;
+            const inputFields = container.querySelectorAll('input');
+            if (s.userAnswer && typeof s.userAnswer === "object") {
+              inputFields.forEach(input => {
+                if(s.userAnswer[input.id]) {
+                  input.value = s.userAnswer[input.id];
+                }
+              });
+            }
+            gradeSimQuestion(container);
+            let overallFeedback = container.querySelector('#sim_overall_feedback');
+            if (overallFeedback) {
+                const match = overallFeedback.textContent.match(/(\d+)\s*out of\s*(\d+)/i);
+                if (match) {
+                    simTotalCorrect += parseInt(match[1], 10);
+                    simTotalInputs += parseInt(match[2], 10);
+                }
+            }
+        });
+        let simOverallPercent = simTotalInputs > 0 ? (simTotalCorrect / simTotalInputs)*100 : 0;
+
+        const finalPercent = (mcqPercent + simOverallPercent) / 2;
+        const overallScore = Math.round(finalPercent);
+
+        document.getElementById("finalScore").innerHTML = `
+          <h3>Overall Score: ${overallScore}</h3>
+          <p>MCQ Score: ${mcqCorrect} / ${mcqTotal} (${mcqPercent.toFixed(1)}%)<br/>
+             SIM Score: ${simTotalCorrect} / ${simTotalInputs} (${simOverallPercent.toFixed(1)}%)</p>
+        `;
+
+        let subtopicTable = `
+          <h4>MCQ Subtopic Breakdown</h4>
+          <table>
+            <tr><th>Subtopic</th><th>Correct / Total</th><th>%</th></tr>
+        `;
+        for (let st in subtopicTotalsMCQ) {
+          const c = subtopicCorrectMCQ[st];
+          const t = subtopicTotalsMCQ[st];
+          const pct = (c / t) * 100;
+          subtopicTable += `
+            <tr>
+              <td>${escapeHTML(st)}</td>
+              <td>${c} / ${t}</td>
+              <td>${pct.toFixed(1)}%</td>
+            </tr>
+          `;
+        }
+        subtopicTable += `</table>`;
+
+        const subtopicTotalsSIM = {};
+        const subtopicCorrectSIM = {};
+        simArray.forEach(s => {
+          const key = s.subtopic || "(None)";
+          if (!subtopicTotalsSIM[key]) {
+            subtopicTotalsSIM[key] = 0;
+            subtopicCorrectSIM[key] = 0;
+          }
+          let container = document.createElement('div');
+          container.innerHTML = s.Question;
+          const inputFields = container.querySelectorAll('input');
+          if (s.userAnswer && typeof s.userAnswer === "object") {
+              inputFields.forEach(input => {
+                  if(s.userAnswer[input.id]) {
+                      input.value = s.userAnswer[input.id];
+                  }
+              });
+          }
+          gradeSimQuestion(container);
+          const overallFeedback = container.querySelector('#sim_overall_feedback');
+          if (overallFeedback) {
+              const match = overallFeedback.textContent.match(/(\d+)\s*out of\s*(\d+)/i);
+              if (match) {
+                  let correctVal = parseInt(match[1], 10);
+                  let totalVal = parseInt(match[2], 10);
+                  subtopicCorrectSIM[key] += correctVal;
+                  subtopicTotalsSIM[key] += totalVal;
+              }
+          }
+        });
+
+        subtopicTable += `
+          <h4>SIM Subtopic Breakdown</h4>
+          <table>
+            <tr><th>Subtopic</th><th>Correct / Total</th><th>%</th></tr>
+        `;
+        for (let st in subtopicTotalsSIM) {
+          const correctVal = subtopicCorrectSIM[st];
+          const totalVal = subtopicTotalsSIM[st];
+          const pct = totalVal > 0 ? (correctVal / totalVal) * 100 : 0;
+          subtopicTable += `
+            <tr>
+              <td>${escapeHTML(st)}</td>
+              <td>${correctVal} / ${totalVal}</td>
+              <td>${pct.toFixed(1)}%</td>
+            </tr>
+          `;
+        }
+        subtopicTable += `</table>`;
+
+        document.getElementById("subtopicBreakdown").innerHTML = subtopicTable;
+
+        let reviewHTML = `<h3>Review of MCQs</h3>`;
+        mcqArray.forEach((q, i) => {
+          const userAnswer = q.userAnswer ? q.userAnswer : "(none)";
+          const correctAnswer = q.Correct.trim().toUpperCase();
+          const userAnswerUpper = userAnswer.trim().toUpperCase();
+          let isCorrect = (userAnswerUpper === correctAnswer && userAnswer !== "(none)");
+          let color = isCorrect ? "green" : "red";
+
+          let userAnswerSpan = `<span style="color:${color}; font-weight:bold;">${escapeHTML(userAnswer)}</span>`;
+
+          reviewHTML += `
+            <div style="border:1px solid #ddd; padding:10px; margin:10px 0;">
+              <strong>Q${i+1}:</strong> ${escapeHTML(q.Question)}<br/>
+              <em>Your answer:</em> ${userAnswerSpan}<br/>
+              <em>Correct answer:</em> ${escapeHTML(q.Correct)}<br/>
+              <em>Explanation:</em> ${escapeHTML(q.Explanation)}<br/>
+              <em>Subtopic:</em> ${escapeHTML(q.Subtopic)}
+            </div>
+          `;
+        });
+
+        document.getElementById("review").innerHTML = reviewHTML;
+        
+        // Prepare results data for Google Sheet submission
+        const allSubtopics = Object.keys(subtopicTotalsMCQ).concat(Object.keys(subtopicTotalsSIM)).filter((v, i, a) => a.indexOf(v) === i).join(", ");
+        
+        // Build a machine-readable results string for historical tracking
+        let resultsString = "";
+        
+        // Add MCQ results by subtopic
+        for (let st in subtopicTotalsMCQ) {
+          if (resultsString) resultsString += "|";
+          resultsString += `${examKey};MCQ;${st.replace(/;/g, ":")};${subtopicCorrectMCQ[st]};${subtopicTotalsMCQ[st]}`;
+        }
+        
+        // Add SIM results by subtopic
+        for (let st in subtopicTotalsSIM) {
+          if (resultsString) resultsString += "|";
+          resultsString += `${examKey};SIM;${st.replace(/;/g, ":")};${subtopicCorrectSIM[st]};${subtopicTotalsSIM[st]}`;
+        }
+        
+        // Submit results to Google Sheet
+        submitData(mcqCorrect, mcqTotal, simTotalCorrect, simTotalInputs, allSubtopics, resultsString);
+      }
+      
+      // Function to submit data to Google Sheet
+      function submitData(mcqCorrect, mcqTotal, simCorrect, simTotal, allSubtopics, resultsString) {
+        // Prepare data to send
+        const formData = {
+          timestamp: new Date().toISOString(),
+          ip: userIP || 'unknown',
+          exam: examKey,
+          subtopics: allSubtopics,
+          microtopics: '',
+          numQuestions: String(mcqTotal + simTotal),
+          correctAnswers: String(mcqCorrect + simCorrect),
+          percentage: ((mcqCorrect + simCorrect) / (mcqTotal + simTotal) * 100).toFixed(1) + "%",
+          sourceUrl: sourceUrl,
+          resultsString: resultsString,
+          quizType: "TESTER"  // Identify this as coming from tester-html
+        };
+        
+        console.log("Sending data to Google Apps Script:", formData);
+        
+        // Try multiple different methods for redundancy - but use only ONE method to avoid duplicate submissions
+        submitViaIframeForm(formData);
+      }
+      
+      // Submit via simple form method
+      function submitViaSimpleForm(data) {
+        try {
+          const scriptURL = googleScriptURL;
+          console.log("Creating direct form for submission");
+          
+          // Create a simple form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = scriptURL;
+          form.style.display = 'none';
+          // Prevent redirect by using a hidden iframe target
+          const targetIframeName = 'submit_target_' + Math.floor(Math.random() * 1000000);
+          const targetIframe = document.createElement('iframe');
+          targetIframe.name = targetIframeName;
+          targetIframe.style.display = 'none';
+          document.body.appendChild(targetIframe);
+          form.target = targetIframeName;
+          
+          // Add all data fields as hidden inputs
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = String(data[key]);
+              form.appendChild(input);
+            }
+          }
+          
+          // Add the form to the page
+          document.body.appendChild(form);
+          
+          // Submit the form
+          console.log("Submitting form directly");
+          form.submit();
+          
+          // Remove the form after submission
+          setTimeout(() => {
+            if (document.body.contains(form)) {
+              document.body.removeChild(form);
+            }
+            if (document.body.contains(targetIframe)) {
+              document.body.removeChild(targetIframe);
+            }
+          }, 5000);
+          
+          return true;
+        } catch (error) {
+          console.error("Error in simple form submission:", error);
+          return false;
+        }
+      }
+      
+      // Submit via iframe form method
+      function submitViaIframeForm(data) {
+        const scriptURL = googleScriptURL;
+        console.log("Form submission URL:", scriptURL);
+        
+        try {
+          // Create a hidden iframe to target the form submission
+          const iframe = document.createElement('iframe');
+          const iframeName = 'hidden_iframe_' + Math.floor(Math.random() * 1000000);
+          iframe.name = iframeName;
+          iframe.style.display = 'none';
+          iframe.onload = function() {
+            console.log("iframe loaded, form submission complete");
+          };
+          document.body.appendChild(iframe);
+          console.log("Created iframe:", iframeName);
+          
+          // Create temporary form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = scriptURL;
+          form.target = iframeName; // Target the hidden iframe
+          form.style.display = 'none'; // Make it invisible
+          form.enctype = 'application/x-www-form-urlencoded'; // Add this to ensure proper encoding
+          
+          // Add all data fields as hidden inputs
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = String(data[key]); // Convert everything to string
+              form.appendChild(input);
+            }
+          }
+          
+          // Add the form to the page and submit it
+          document.body.appendChild(form);
+          
+          // Submit the form
+          form.submit();
+          
+          // Remove the form and iframe after submission
+          setTimeout(() => {
+            try {
+              if (document.body.contains(form)) {
+                document.body.removeChild(form);
+              }
+              
+              if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+              }
+            } catch (cleanupError) {
+              console.error("Error cleaning up form elements:", cleanupError);
+            }
+          }, 10000); // Extended timeout to ensure the form submission completes
+          
+          return true;
+        } catch (formError) {
+          console.error("Error creating or submitting form:", formError);
+          return false;
+        }
+      }
+      
+      // Get user IP for tracking (optional)
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          userIP = data.ip;
+          console.log("User IP obtained for logging:", userIP);
+        })
+        .catch(error => {
+          console.error("Error getting IP:", error);
+        });
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 10. RESTART EXAM (TRY AGAIN)
+      ////////////////////////////////////////////////////////////////////////////////
+      function restartExam() {
+        mcqArray.forEach(q => q.userAnswer = null);
+        simArray.forEach(s => s.userAnswer = null);
+        currentTestletIndex = 0;
+        currentQuestionIndex = 0;
+        timeLeft = TOTAL_TIME;
+
+        document.getElementById("results").classList.remove("activeSection");
+        document.getElementById("results").style.display = "none";
+
+        showTestlet(currentTestletIndex);
+        startTimer();
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 11. TIMER
+      ////////////////////////////////////////////////////////////////////////////////
+      function startTimer() {
+        stopTimer();
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft < 0) {
+            timeLeft = 0;
+            stopTimer();
+            finishExam();
+          }
+          const hrs = Math.floor(timeLeft / 3600);
+          const mins = Math.floor((timeLeft % 3600) / 60);
+          const secs = timeLeft % 60;
+          document.getElementById("timerBar").textContent = `Time Remaining: ${hrs}h ${mins}m ${secs}s`;
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      // NEW: Animate the hint button (flash red via CSS animation)
+      function animateHintButton(){
+        const hintBtn = document.getElementById("hintBtn");
+        if (hintBtn) {
+          hintBtn.classList.add("animate-hint");
+          setTimeout(() => {
+            hintBtn.classList.remove("animate-hint");
+          }, 2500);
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 12. HELPERS
+      ////////////////////////////////////////////////////////////////////////////////
+      function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+      }
+
+      function escapeHTML(str) {
+        if (!str) return "";
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\r?\n/g, "<br>");
+      }
+
+      function revealSimExplanations(html) {
+        let parser = new DOMParser();
+        let doc = parser.parseFromString(html, 'text/html');
+
+        doc.querySelectorAll('.explanation').forEach(elem => {
+          elem.style.display = 'block';
+        });
+        doc.querySelectorAll('.feedback').forEach(elem => {
+          elem.style.display = 'block';
+        });
+        doc.querySelectorAll('[style*="display:none"]').forEach(elem => {
+          elem.style.display = 'block';
+        });
+
+        return doc.body.innerHTML;
+      }
+
+      function sumOfTestletCounts(testlets, testletIndex, whichType) {
+        let sum = 0;
+        for (let i = 0; i < testletIndex; i++) {
+          if (testlets[i].type === whichType) {
+            sum += testlets[i].count;
+          }
+        }
+        return sum;
+      }
+
+      function gradeSimQuestion(simContainer) {
+          const inputFields = simContainer.querySelectorAll('input');
+          let total = inputFields.length;
+          let correctCount = 0;
+          inputFields.forEach(function(input) {
+              let feedbackEl = simContainer.querySelector(`#fb_${input.id}`);
+              if (!feedbackEl) {
+                  feedbackEl = document.createElement('div');
+                  feedbackEl.id = "fb_" + input.id;
+                  input.parentNode.insertBefore(feedbackEl, input.nextSibling);
+              }
+              const userValue = input.value.trim();
+              const displayValue = userValue ? userValue : "(none)";
+              if (window.correctAnswers && window.correctAnswers.hasOwnProperty(input.id)) {
+                  const correctValue = window.correctAnswers[input.id];
+                  const explanation = (typeof explanationFor === "function") ? explanationFor(input.id) : "";
+                  if (Number(userValue) === Number(correctValue)) {
+                      feedbackEl.textContent = "Correct! Your answer: " + displayValue + ". " + explanation;
+                      feedbackEl.className = "feedback correct";
+                      correctCount++;
+                  } else {
+                      feedbackEl.textContent = "Incorrect. Your answer: " + displayValue + ". " +
+                         explanation +
+                         " Expected: " + correctValue + ".";
+                      feedbackEl.className = "feedback incorrect";
+                  }
+                  feedbackEl.style.display = "block";
+              } else {
+                  feedbackEl.textContent = "No correct answer available.";
+                  feedbackEl.className = "feedback incorrect";
+                  feedbackEl.style.display = "block";
+              }
+          });
+          let overallFeedback = simContainer.querySelector('#sim_overall_feedback');
+          if (!overallFeedback) {
+              overallFeedback = document.createElement('div');
+              overallFeedback.id = "sim_overall_feedback";
+              simContainer.appendChild(overallFeedback);
+          }
+          let percentage = Math.round((correctCount / total) * 100);
+          overallFeedback.textContent = "SIM Partial Credit: " + correctCount + " out of " + total + " (" + percentage + "%)";
+          overallFeedback.style.marginTop = "10px";
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 13. CALCULATOR FUNCTIONS
+      ////////////////////////////////////////////////////////////////////////////////
+      let calcExpression = "";
+
+      function toggleCalculator() {
+        const calcPopup = document.getElementById("calculatorPopup");
+        if (calcPopup.style.display === "none" || calcPopup.style.display === "") {
+          calcPopup.style.display = "block";
+          updateCalcDisplay();
+        } else {
+          calcPopup.style.display = "none";
+        }
+      }
+
+      function updateCalcDisplay() {
+        document.getElementById("calcDisplay").textContent = calcExpression === "" ? "0" : calcExpression;
+      }
+
+      function performEquals() {
+        try {
+          let result = eval(calcExpression);
+          document.getElementById("calcDisplay").textContent = result;
+          calcExpression = String(result);
+        } catch (err) {
+          document.getElementById("calcDisplay").textContent = "Error";
+          calcExpression = "";
+        }
+      }
+
+      function initCalculator() {
+        const calcDisplay = document.getElementById("calcDisplay");
+        const calcButtons = document.getElementById("calcButtons");
+        calcButtons.addEventListener("click", (e) => {
+          if (e.target.tagName.toLowerCase() !== "button") return;
+          const action = e.target.getAttribute("data-action");
+          const value = e.target.getAttribute("data-value");
+          if (action === "clear") {
+            calcExpression = "";
+            updateCalcDisplay();
+          } else if (action === "equals") {
+            performEquals();
+          } else if (action === "square") {
+            try {
+              let num = eval(calcExpression);
+              let squared = num * num;
+              calcExpression = String(squared);
+              updateCalcDisplay();
+            } catch (err) {
+              calcExpression = "";
+              updateCalcDisplay();
+            }
+          } else if (action === "sqrt") {
+            try {
+              let num = eval(calcExpression);
+              if (num < 0) {
+                calcExpression = "Error";
+              } else {
+                let sqroot = Math.sqrt(num);
+                calcExpression = String(sqroot);
+              }
+              updateCalcDisplay();
+            } catch (err) {
+              calcExpression = "";
+              updateCalcDisplay();
+            }
+          } else if (value !== null) {
+            calcExpression += value;
+            updateCalcDisplay();
+          }
+        });
+      }
+      ////////////////////////////////////////////////////////////////////////////////
+      // Draggable functionality for Calculator Popup
+      ////////////////////////////////////////////////////////////////////////////////
+      function initCalculatorDrag() {
+        const popup = document.getElementById("calculatorPopup");
+        const dragBar = document.getElementById("calcDragBar");
+        let offsetX = 0, offsetY = 0, isDragging = false;
+
+        dragBar.addEventListener("mousedown", function(e) {
+          if (popup.style.transform !== "none") {
+            let rect = popup.getBoundingClientRect();
+            popup.style.left = rect.left + "px";
+            popup.style.top = rect.top + "px";
+            popup.style.transform = "none";
+          }
+          isDragging = true;
+          offsetX = e.clientX - popup.offsetLeft;
+          offsetY = e.clientY - popup.offsetTop;
+          document.addEventListener("mousemove", movePopup);
+          document.addEventListener("mouseup", function() {
+            isDragging = false;
+            document.removeEventListener("mousemove", movePopup);
+          }, { once: true });
+        });
+
+        function movePopup(e) {
+          if (!isDragging) return;
+          popup.style.left = (e.clientX - offsetX) + "px";
+          popup.style.top = (e.clientY - offsetY) + "px";
+          popup.style.transform = "none";
+        }
+      }
+
+      initCalculatorDrag();
+      ////////////////////////////////////////////////////////////////////////////////
+      // End CALCULATOR FUNCTIONS
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // 14. HELP POPUP FUNCTIONS & DRAGGING
+      ////////////////////////////////////////////////////////////////////////////////
+
+      // UPDATED: openHelpPopup now uses the new help CSV data.
+      function openHelpPopup() {
+        let currentQ = currentTestletQuestions[currentQuestionIndex];
+        // Use the question's microtopic if available; otherwise fallback to Subtopic.
+        let microtopic = (currentQ.microtopic && currentQ.microtopic.trim() !== "") ? currentQ.microtopic.trim() : (currentQ.Subtopic ? currentQ.Subtopic.trim() : "");
+        if (!microtopic) {
+          document.getElementById("helpIframe").srcdoc = "<p style='padding: 0 5px;'>No help available for this question.</p>";
+          document.getElementById("helpOverlay").style.display = "block";
+          return;
+        }
+        function showHelp() {
+          let found = null;
+          for (let i = 0; i < helpCSVData.length; i++) {
+            let row = helpCSVData[i];
+            if (row.microtopic && row.microtopic.trim().toLowerCase() === microtopic.toLowerCase()) {
+              found = row;
+              break;
+            }
+          }
+          let helpContent = "";
+          if (found && found["html help"] && found["html help"].trim() !== "") {
+            helpContent = found["html help"];
+          } else {
+            helpContent = "<p style='padding: 0 5px;'>No help available for this question.</p>";
+          }
+          document.getElementById("helpIframe").srcdoc = helpContent;
+          document.getElementById("helpOverlay").style.display = "block";
+        }
+        if (helpCSVData) {
+          showHelp();
+        } else {
+          fetch(helpCSVUrl)
+            .then(response => response.text())
+            .then(csvText => Papa.parse(csvText, { header: true, skipEmptyLines: true }))
+            .then(parsed => {
+              helpCSVData = parsed.data;
+              showHelp();
+            })
+            .catch(err => {
+              console.error("Error loading help CSV: ", err);
+              document.getElementById("helpIframe").srcdoc = "<p style='padding: 0 5px;'>No help available for this question.</p>";
+              document.getElementById("helpOverlay").style.display = "block";
+            });
+        }
+      }
+      function closeHelpPopup() {
+        document.getElementById("helpOverlay").style.display = "none";
+      }
+      function initHelpDrag() {
+        const helpPopup = document.getElementById("helpPopup");
+        const helpHeader = document.getElementById("helpPopupHeader");
+        let offsetX = 0, offsetY = 0, isDragging = false;
+        helpHeader.addEventListener("mousedown", function(e) {
+          if (helpPopup.style.transform !== "none") {
+            let rect = helpPopup.getBoundingClientRect();
+            helpPopup.style.left = rect.left + "px";
+            helpPopup.style.top = rect.top + "px";
+            helpPopup.style.transform = "none";
+          }
+          isDragging = true;
+          offsetX = e.clientX - helpPopup.offsetLeft;
+          offsetY = e.clientY - helpPopup.offsetTop;
+          document.addEventListener("mousemove", moveHelpPopup);
+          document.addEventListener("mouseup", function() {
+            isDragging = false;
+            document.removeEventListener("mousemove", moveHelpPopup);
+          }, { once: true });
+        });
+
+        function moveHelpPopup(e) {
+          if (!isDragging) return;
+          helpPopup.style.left = (e.clientX - offsetX) + "px";
+          helpPopup.style.top = (e.clientY - offsetY) + "px";
+          helpPopup.style.transform = "none";
+        }
+      }
+
+      ////////////////////////////////////////////////////////////////////////////////
+      // Hint Popup Functions & Draggable
+      ////////////////////////////////////////////////////////////////////////////////
+      function openHintPopup() {
+        let currentQ = currentTestletQuestions[currentQuestionIndex];
+        let hintContent = "";
+        if (currentQ && currentQ.hint && currentQ.hint.trim() !== "") {
+          hintContent = "<h2 style='margin: 0; font-size: 1.2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;'>Hint</h2>" +
+                        "<div style='padding-top: 8px;'>" + currentQ.hint + "</div>";
+        } else {
+          hintContent = "<h2 style='margin: 0; font-size: 1.2rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;'>Hint</h2>" +
+                        "<p style='padding-top: 8px;'>No hint available for this question.</p>";
+        }
+        document.getElementById("hintContent").innerHTML = hintContent;
+        document.getElementById("hintPopup").style.display = "block";
+      }
+      function closeHintPopup() {
+        document.getElementById("hintPopup").style.display = "none";
+      }
+      function initHintDrag() {
+        const popup = document.getElementById("hintPopup");
+        const dragBar = document.getElementById("hintDragBar");
+        let offsetX = 0, offsetY = 0, isDragging = false;
+        dragBar.addEventListener("mousedown", function(e) {
+          if (popup.style.transform !== "none") {
+            let rect = popup.getBoundingClientRect();
+            popup.style.left = rect.left + "px";
+            popup.style.top = rect.top + "px";
+            popup.style.transform = "none";
+          }
+          isDragging = true;
+          offsetX = e.clientX - popup.offsetLeft;
+          offsetY = e.clientY - popup.offsetTop;
+          document.addEventListener("mousemove", movePopup);
+          document.addEventListener("mouseup", function() {
+            isDragging = false;
+            document.removeEventListener("mousemove", movePopup);
+          }, { once: true });
+        });
+        function movePopup(e) {
+          if (!isDragging) return;
+          popup.style.left = (e.clientX - offsetX) + "px";
+          popup.style.top = (e.clientY - offsetY) + "px";
+          popup.style.transform = "none";
+        }
+      }
+    </script>
+
+  </body>
+</html>
